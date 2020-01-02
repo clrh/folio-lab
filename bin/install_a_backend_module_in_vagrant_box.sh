@@ -1,7 +1,9 @@
-#!bin/bash
+#!/bin/bash
 
 module_name="module_name"
 module_version="module-version"
+
+deploy="no"
 
 usage() {
     cat <<EOF
@@ -24,7 +26,7 @@ fi
 
 while [ $1 ]; do
     case $1 in
-        -d )
+        -n )
             shift
             module_name=$1
             ;;
@@ -44,15 +46,25 @@ while [ $1 ]; do
     shift
 done
 
+echo "NAME:$module_name"
+echo "VERSION:$module_version"
+echo "DEPLOY?$deploy"
+
 function get_module(){
+ echo "coucou"
 }
 function build_java_module(){
+ echo "coucou"
 }
 function build_docker_container(){
+ echo "coucou"
 }
 function declare_module(){
+ echo "coucou"
 }
 function deploy_module(){
+ echo "coucou"
 }
 function enable_module(){
+ echo "coucou"
 }
