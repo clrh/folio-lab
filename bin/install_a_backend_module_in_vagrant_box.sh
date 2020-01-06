@@ -13,8 +13,14 @@ usage() {
         Module name to install. (ex: mod-data-import)
     -v <value>
         Version of the module (ex: 1.8.0-SNAPSHOT)
-    -d <yes>
-        Download the module and deploy before Okapi declarations
+    -do <yes>
+        Download the module, build and docker build
+    -de <yes>
+        Declare, deploy and enable in Okapi
+    -t <yes>
+        Display curl results relatives to tools
+    -i <yes>
+        Get informations about a module available
     -h | --help
         Affichage de l'aide.
 EOF
@@ -29,7 +35,10 @@ fi
 # default values
 module_name="module_name"
 module_version="module-version"
+download="no"
 deploy="no"
+tools="no"
+info="no"
 
 while [ $1 ]; do
     case $1 in
@@ -41,9 +50,21 @@ while [ $1 ]; do
             shift
             module_version=$1
             ;;
-        -d )
+        -do )
+            shift
+            download=$1
+            ;;
+        -de )
             shift
             deploy=$1
+            ;;
+        -t )
+            shift
+            tools=$1
+            ;;
+        -i )
+            shift
+            info=$1
             ;;
        * )
             echo "Unknown arg $1"
@@ -55,7 +76,9 @@ done
 
 echo "NAME:$module_name"
 echo "VERSION:$module_version"
+echo "DOWNLOAD?$dowload"
 echo "DEPLOY?$deploy"
+echo "TOOLS?$tools"
 
 function get_module(){
   echo "\===> get_module"
@@ -104,15 +127,48 @@ function get_dependencies(){
     -d "[ { \"id\" : \"$module_name-$module_version\" , \"action\" : \"enable\" } ]" \
     http://localhost:9130/_/proxy/tenants/$tenant_name/install?simulate=true
 }
+function get_information(){
+  echo "\n===> get information for: $module_name-$module_version"
+#  curl -w '\n' -X GET -D -   \
+#    -H "Content-type: application/json"   \
+#    http://localhost:9130/_/proxy/modules/$module_name-$module_version
+
+  # Reply a json format with module in id if installed
+  echo "> Okapi"
+  curl -w '\n' -X GET -D -   \
+    -H "Content-type: application/json"   \
+    http://localhost:9130/_/proxy/tenants/$tenant_name/modules/$module_name-$module_version
+  echo "> Docker"
+  docker ps | grep $module_name
+}
 log_run(){
   echo "vagrant@$(hostname):~#${@/eval/}" >> $docfile ; "$@" >> $logfile 2>&1;
 }
 
+if [ "$download" = "no" ]
+then
+  echo "download = no"
+else
+  get_module
+  build_java_module
+  build_docker_container
+fi
 
-get_module
-build_java_module
-build_docker_container
-declare_module
-deploy_module
-enable_module
-get_dependencies
+if [ "$deploy" = "no" ]
+then
+  echo "deploy = no"
+else
+  declare_module
+  deploy_module
+  enable_module
+fi
+
+if [ "$tools" = "yes" ]
+then
+  get_dependencies
+fi
+
+if [ "$info" = "yes" ]
+then
+  get_information
+fi
