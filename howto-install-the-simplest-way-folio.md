@@ -25,8 +25,8 @@ vagrant ssh
 
 ```
 Okapi install /usr/share/folio/okapi
-Conf files/etc/folio/okapi
-Logs files/var/log/folio/okapi
+Conf files /etc/folio/okapi
+Logs files /var/log/folio/okapi
 Confs /etc/folio
 ```
 
